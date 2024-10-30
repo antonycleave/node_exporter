@@ -59,3 +59,5 @@ require (
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace github.com/prometheus/procfs => github.com/antonycleave/procfs v0.15.2-0.20241015163623-cfa44a90c059
