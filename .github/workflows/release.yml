@@ -20,7 +20,7 @@ jobs:
         run: make common-tarball
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
-        with:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
           args: '*.tar.*'
