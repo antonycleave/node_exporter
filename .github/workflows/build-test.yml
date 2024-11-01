@@ -9,7 +9,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/arm64
     steps:
+    - name: debug
+      run: arch
     - uses: actions/checkout@v4
     - name: Setup Go 1.23.2
       uses: actions/setup-go@v5
