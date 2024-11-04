@@ -1,0 +1,46 @@
+on:
+  release:
+    types: [created]
+name: Handle Release
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/arm64
+          - linux/amd64
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        file: Dockerfiles/autobuild.Dockerfile
+        push: false
+        load: true
+        tags: nodebuild:notused
+        platforms: "${{ matrix.platform }}"
+        cache-from: type=gha
+
+    - name: extract binaries
+      uses: addnab/docker-run-action@v3
+      with:
+        image: nodebuild:notused
+        options: "-v ${{ github.workspace }}:/host"
+        run: "cp /build/*.tar.* /host"
+
+    - name: Upload the artifacts
+      uses: skx/github-action-publish-binaries@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: '*.tar.*'
