@@ -10,4 +10,3 @@ COPY .build/${OS}-${ARCH}/node_exporter /bin/node_exporter
 EXPOSE      9100
 USER        nobody
 ENTRYPOINT  [ "/bin/node_exporter" ]
-
