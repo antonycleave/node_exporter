@@ -16,6 +16,8 @@ jobs:
           - linux/arm64
           - linux/x86_64
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
     - name: Build and push
@@ -23,7 +25,7 @@ jobs:
       with:
         push: false
         tags: nodebuild:notused
-        platform: "{{ matrix.platform }}"
+        platforms: "{{ matrix.platform }}"
     - name: extract binaries
       uses: addnab/docker-run-action@v3
       with:
