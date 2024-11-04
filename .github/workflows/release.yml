@@ -3,31 +3,46 @@ on:
     types: [created]
 name: Handle Release
 jobs:
-  generate:
-    name: Create release-artifacts
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         platform:
-          - linux/amd64
           - linux/arm64
-
+          - linux/amd64
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go 1.23.2
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23.2'
-      - name: Run style check
-        run: make common-style
-      - name: Run build
-        run: make common-build
-      - name: create tarball
-        run: make common-tarball
-      - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: '*.tar.*'
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Set cache name
+      id: cache-name
+      run: |
+        echo 'cache-name=asterisk-cache-${{ matrix.platform }}' | sed 's:/:-:g' >> $GITHUB_OUTPUT
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        push: false
+        load: true
+        tags: nodebuild:notused
+        platforms: "${{ matrix.platform }}"
+        cache-from: type=gha
+
+    - name: extract binaries
+      uses: addnab/docker-run-action@v3
+      with:
+        image: nodebuild:notused
+        options: "-v ${{ github.workspace }}:/host"
+        run: "cp /build/*.tar.* /host"
+
+    - name: Upload the artifacts
+      uses: skx/github-action-publish-binaries@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: '*.tar.*'
