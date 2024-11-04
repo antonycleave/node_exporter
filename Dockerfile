@@ -1,12 +1,7 @@
-ARG ARCH="amd64"
-ARG OS="linux"
-FROM quay.io/prometheus/busybox-${OS}-${ARCH}:latest
-LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
-
-ARG ARCH="amd64"
-ARG OS="linux"
-COPY .build/${OS}-${ARCH}/node_exporter /bin/node_exporter
-
-EXPOSE      9100
-USER        nobody
-ENTRYPOINT  [ "/bin/node_exporter" ]
+ARG GO_VERS=1.23.2
+FROM  cimg/go:$GO_VERS
+WORKDIR /build
+COPY $PWD /build 
+RUN sudo chown -R circleci:circleci /build
+RUN make common-build && \
+    make common-tarball
