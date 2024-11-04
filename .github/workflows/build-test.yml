@@ -2,9 +2,9 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ "playground" ]
+    branches: [ "nscale" ]
   pull_request:
-    branches: [ "playground" ]
+    branches: [ "nscale" ]
 
 jobs:
   build:
@@ -18,20 +18,17 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
+      
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-
-    - name: Set cache name
-      id: cache-name
-      run: |
-        echo 'cache-name=asterisk-cache-${{ matrix.platform }}' | sed 's:/:-:g' >> $GITHUB_OUTPUT
 
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
-        file: Dockerfiles/nscale-autobuild.Dockerfile
+        file: Dockerfiles/autobuild.Dockerfile
         push: false
         load: true
         tags: nodebuild:notused
